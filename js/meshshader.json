@@ -1,0 +1,175 @@
+[
+	[
+		{
+			"text": "//mesh shader\n",
+			"visible": false,
+			"time": "0",
+			"speed": "1",
+			"running": false,
+			"color": [
+				{
+					"r": "255",
+					"g": "255",
+					"b": "255",
+					"frame": "0"
+				}
+			]
+		},
+		{
+			"text": "",
+			"visible": true,
+			"time": "0",
+			"speed": "1",
+			"running": false,
+			"color": [
+				{
+					"r": "255",
+					"g": "0",
+					"b": "255",
+					"frame": "0"
+				}
+			]
+		}
+	],
+	[
+		{
+			"text": "",
+			"visible": false,
+			"time": "0",
+			"speed": "1",
+			"running": false,
+			"color": [
+				{
+					"r": "255",
+					"g": "177",
+					"b": "255",
+					"frame": "0"
+				}
+			]
+		},
+		{
+			"text": "\nstruct masuk{\n\t@location(0) pos : vec3f,//xyz\n\t@location(1) tex : vec2f,\n\t@location(2) voroidx : u32,\n}\nstruct hasil{\n\t@builtin(position) pos: vec4f,\n\t@location(0) tex:vec2f,\n\t@location(1) @interpolate(flat) voroidx:u32,\n}\nstruct datamat{\n\tmat:mat4x4f,\n}\n\t\t\t",
+			"visible": true,
+			"time": "0",
+			"speed": "1",
+			"running": false,
+			"color": [
+				{
+					"r": "255",
+					"g": "0",
+					"b": "255",
+					"frame": "0"
+				}
+			]
+		},
+		{
+			"text": "",
+			"visible": true,
+			"time": "0",
+			"speed": "1",
+			"running": false,
+			"color": [
+				{
+					"r": "255",
+					"g": "177",
+					"b": "222",
+					"frame": "0"
+				}
+			]
+		},
+		{
+			"text": "",
+			"visible": true,
+			"time": "0",
+			"speed": "1",
+			"running": false,
+			"color": [
+				{
+					"r": "177",
+					"g": "222",
+					"b": "199",
+					"frame": "0"
+				}
+			]
+		}
+	],
+	[
+		{
+			"text": "",
+			"visible": false,
+			"time": "0",
+			"speed": "1",
+			"running": false,
+			"color": [
+				{
+					"r": "255",
+					"g": "255",
+					"b": "255",
+					"frame": "0"
+				}
+			]
+		},
+		{
+			"text": "\n@group(0) @binding(0) var<uniform> unimat: datamat;\n@group(0) @binding(1) var<storage,read_write> layar:array<f32>;\n@group(0) @binding(2) var<storage> ulain: array<u32>;\n@group(0) @binding(3) var<storage> vorotail: array<u32>; //voronoi\n@group(0) @binding(4) var<storage> voropos: array<vec2f>;\n@group(0) @binding(5) var<storage> vorocolor: array<u32>;\n",
+			"visible": true,
+			"time": "1",
+			"speed": "1",
+			"running": false,
+			"color": [
+				{
+					"r": "177",
+					"g": "255",
+					"b": "177",
+					"frame": "0"
+				}
+			]
+		}
+	],
+	[
+		{
+			"text": "",
+			"visible": false,
+			"time": "0",
+			"speed": "1",
+			"running": false,
+			"color": [
+				{
+					"r": "255",
+					"g": "255",
+					"b": "255",
+					"frame": "0"
+				}
+			]
+		},
+		{
+			"text": "\n@vertex fn vs(\n\tdata:masuk,\n) -> hasil {\n\tlet pos = unimat.mat*vec4f(data.pos,1.,);//xyzw\n\treturn hasil(\n\t\tpos,\n\t\tdata.tex,\n\t\tdata.voroidx,//unpack4x8unorm(bitcast<u32>(data.color)).abgr,\n\t\t\n\t);\n}\n",
+			"visible": true,
+			"time": "0",
+			"speed": "1",
+			"running": false,
+			"color": [
+				{
+					"r": "99",
+					"g": "188",
+					"b": "255",
+					"frame": "0"
+				}
+			]
+		},
+		{
+			"text": "\n@fragment fn fs(\n\tparh: hasil //parameter hasil\n) -> @location(0) vec4f {\n/*========\n--------*/\n/*========\n\tlet depth = \n\t\tparh.tex.z\n\t\t/parh.tex.w\n\t;\n\treturn vec4f(\n\t\t0,\n\t\tparh.colorh,\n\t\tdepth,\n\t\t.5,\n\t);\n--------*/\n\tvar min = .0;//minimum distance\n\tvar colorini = vec4f(.5);\n\t//batas buffer voronoi\n\tlet voroidx = parh.voroidx;\n\tlet awal = select(vorotail[voroidx-1u],0u,voroidx == 0u,);\n\tlet akhir = vorotail[voroidx];\n\t\n\tvar mulai = true;\n\tfor(var i = awal;i < akhir;i++){//sampe sini\n\t\tlet d = distance(voropos[i],parh.tex,);\n\t\tif(mulai || min > d){\n\t\t\tmulai = false;\n\t\t\tmin = d;\n\t\t\tcolorini = unpack4x8unorm(vorocolor[i]).abgr;\n\t\t}\n\t}\n\tlet w = ulain[0];\n\tlet h = ulain[1];\n\tlet ilayar =\n\t\tu32(parh.pos.x)\n\t\t+u32(parh.pos.y)*w\n\t;\n\tvar blip =\n\t\tsin(layar[ilayar]*111.3)\n\t\t+layar[ilayar+1u]\n\t\t+sin(parh.pos.x+parh.pos.y*11.03)\n\t\t+2.41\n\t;\n\tblip = blip%1.;\n\tlayar[ilayar] = blip;\n\tif(colorini.a < blip){\n\t\tdiscard;\n\t}\n\treturn colorini;\n}\n",
+			"visible": true,
+			"time": "0",
+			"speed": "1",
+			"running": false,
+			"color": [
+				{
+					"r": "222",
+					"g": "200",
+					"b": "255",
+					"frame": "0"
+				}
+			]
+		}
+	]
+]
