@@ -1,6 +1,6 @@
 # Object-3D-View
 
-![tampilan gambar](img/tampil.png)  
+![tampilan gambar](image/tampil.png)  
 
 Membuat objek 3d berbasis web  
 Belum support (e.g. OBJ, FBX, 3DS, PLY, STL, etc.)  
