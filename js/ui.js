@@ -246,7 +246,7 @@ o3dv.javascript_ui = async aa=>{
 	let tableshowseed = ui.tableshowseed = ()=>{
 		//vorodipilih --> notrvod
 		let awal = notrvod?o3dv.vorotailarr[notrvod-1]:0
-		let ekor = notrvod && o3dv.vorotailarr[notrvod]
+		let ekor = o3dv.vorotailarr[notrvod]
 		seedscroll = Math.max(Math.min(seedscroll,ekor-awal-1,),0,)
 		
 		let vorotailarr = o3dv.vorotailarr
